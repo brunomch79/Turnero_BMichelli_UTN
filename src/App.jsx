@@ -62,10 +62,13 @@ const App = () => {
     // console.log(evento)
   }
 
-  const borrarCita = () => {
-    alert("borrando cita")
+const borrarCita = (id) => {
+  const citasFiltradas = citas.filter(cita => cita.id !== id)
+  escribirDB(citasFiltradas)
+  modificarCitas(leerDB())
+  toast.success("Turno eliminado")
+}
 
-  }
 
   const editarCita = (id) => {
 
@@ -150,7 +153,14 @@ const App = () => {
     const datos = leerDB() ?? []
     // Verificar que no exista esta fecha
 
+const existe = datos.some(
+  (cita) => cita.fecha === fecha && cita.horario === horario
+)
 
+if (existe) {
+  toast.error("Ese horario ya está ocupado")
+  return
+}
 
     // Agregamos el objeto al final del arreglo
     datos.push(turno)
@@ -240,15 +250,16 @@ const App = () => {
         <div>
           <h2 className='text-2xl font-black text-center'>Turnos</h2>
           <div className="h-[450px] overflow-auto flex flex-col gap-1 p-2">
-            {
-              citas.map(cita => {
-                return <Tarjeta
-                  key={cita.id}
-                  cita={cita}
-                  borrar={borrarCita}
-                  modificar={editarCita} />
-              })
-            }
+        {
+          citas.map(cita => (
+            <Tarjeta
+              key={cita.id}
+              cita={cita}
+              borrar={() => borrarCita(cita.id)}   // le pasamos el id
+              modificar={() => editarCita(cita.id)}
+            />
+          ))
+}
           </div>
         </div>
       </Contenedor>
